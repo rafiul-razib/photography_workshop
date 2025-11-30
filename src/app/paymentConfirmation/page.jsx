@@ -32,9 +32,11 @@ const handleConfirm = async () => {
       "http://localhost:5000/register",
       payload
     );
+    
+    console.log(res);
 
-    if (res.data?.insertedId) {
-      alert("Registered successfully!!!");
+    if (res.data?.url) {
+      window.location.href = res.data?.url
 
       // OPTIONAL: clear form data from localStorage
       // localStorage.removeItem("formData");
@@ -80,7 +82,7 @@ const handleConfirm = async () => {
           <Info label="Address" value={data.address} />
           <Info label="T-Shirt Size" value={data.tshirt} />
           <Info label="Guests" value={data.guests} />
-          <Info label="Payment Method" value={data.payment} />
+          <Info label="Payable Amount" value={1700+data.guests*1000} />
         </div>
 
         {/* BUTTON */}
