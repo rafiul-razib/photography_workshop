@@ -46,7 +46,7 @@ const VerifyUser = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-background via-accent/20 to-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-2 border-destructive">
           <CardContent className="pt-6 text-center">
             <p className="text-lg text-destructive font-semibold">User not found</p>
@@ -58,12 +58,12 @@ const VerifyUser = () => {
 
   const InfoItem = ({ icon: Icon, label, value, className = "" }) => (
     <div className={`flex items-start gap-4 p-4 rounded-lg bg-accent/50 hover:bg-accent transition-colors ${className}`}>
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+      <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
         <Icon className="w-5 h-5 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-muted-foreground font-medium">{label}</p>
-        <p className="text-base font-semibold text-foreground break-words">{value}</p>
+        <p className="text-base font-semibold text-foreground wrap-break-words">{value}</p>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ const VerifyUser = () => {
                 </div>
               </div>
             )}
-            <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary to-verified bg-clip-text text-transparent">
+            <CardTitle className="text-4xl font-bold bg-linear-to-r from-primary to-verified bg-clip-text text-transparent">
               {user.name}
             </CardTitle>
           </CardHeader>
@@ -111,18 +111,19 @@ const VerifyUser = () => {
 
             {/* Event Details */}
             <div className="grid md:grid-cols-2 gap-4">
-              <InfoItem icon={Calendar} label="Batch" value={user.batch} />
-              <InfoItem icon={Users} label="Group" value={user.group} />
+              <InfoItem icon={Calendar} label="Batch" value={user.sscCompletion === "yes"?user["ssc-batch"]:user["hsc-batch"]} />
+              <InfoItem icon={Users} label="Group" value={user.sscCompletion === "yes"?user["ssc-group"]:user["hsc-group"]} />
             </div>
 
             {/* Additional Information */}
             <div className="grid md:grid-cols-2 gap-4">
               <InfoItem icon={Shirt} label="T-Shirt Size" value={user.tshirt} />
               <InfoItem icon={UserPlus} label="Guest Count" value={user.guests} />
+              <InfoItem icon={UserPlus} label="Parking Requirement" value={user.parking} />
             </div>
 
             {/* Payment Information */}
-            <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-card to-accent/30 border-2 space-y-4">
+            <div className="mt-6 p-6 rounded-xl bg-linear-to-br from-card to-accent/30 border-2 space-y-4">
               <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
                 <CreditCard className="w-6 h-6 text-primary" />
                 Payment Details
@@ -143,7 +144,7 @@ const VerifyUser = () => {
 
               <div className="flex items-center justify-between pt-4 border-t border-border">
                 <span className="text-muted-foreground font-medium">Total Amount</span>
-                <span className="text-2xl font-bold text-primary">₹{user.totalAmount}</span>
+                <span className="text-2xl font-bold text-primary">BDT {user.totalAmount}</span>
               </div>
             </div>
           </CardContent>

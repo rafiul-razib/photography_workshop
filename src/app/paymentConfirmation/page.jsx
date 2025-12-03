@@ -57,9 +57,9 @@ const handleConfirm = async () => {
 
 
   return (
-    <div className="min-h-screen bg-background p-6 flex justify-center">
-      <Card className="max-w-lg w-full p-6 glass border-border/50 shadow-lg">
-        <h1 className="text-2xl font-bold text-center mb-4 text-gradient">
+    <div className="min-h-screen bg-[#0F1319] p-6 flex justify-center">
+      <Card className="max-w-lg w-full p-6 glass border-border/50 shadow-lg bg-[#13171E] text-white">
+        <h1 className="text-2xl font-bold text-center mb-4 bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
           Payment Confirmation
         </h1>
 
@@ -88,7 +88,7 @@ const handleConfirm = async () => {
         {/* BUTTON */}
         <Button
           onClick={handleConfirm}
-          className="w-full mt-6 bg-primary text-primary-foreground py-4 text-lg"
+          className="w-full mt-6 bg-[#1DEDF4] text-primary-foreground py-4 text-lg"
         >
           Confirm & Pay
         </Button>
