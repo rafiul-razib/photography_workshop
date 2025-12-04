@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { FileSymlink } from "lucide-react";
 
 export default function PaymentConfirmation() {
   const [data, setData] = useState(null);
@@ -113,7 +114,7 @@ const handleConfirm = async () => {
           disabled={!isChecked}
           className="w-full mt-6 bg-[#1DEDF4] text-primary-foreground py-4 text-lg"
         >
-          Confirm & Pay
+          Confirm & Pay <FileSymlink className="text-white" />
         </Button>
       </Card>
     </div>

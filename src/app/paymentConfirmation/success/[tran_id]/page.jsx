@@ -1,26 +1,157 @@
-"use client"
-import { useEffect, useState, useRef } from "react";
+"use client";
+
+import { useEffect, useState, useRef, forwardRef } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import domtoimage from "dom-to-image-more";
 import QRCode from "qrcode";
+
+import {
+  Mail,
+  Phone,
+  Users,
+  Shirt,
+  UserPlus,
+  CreditCard,
+  Calendar,
+  Car,
+  FileDown,
+} from "lucide-react";
+
 import { useParams } from "next/navigation";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Users, Shirt, UserPlus, CreditCard, Calendar } from "lucide-react";
+// Reusable Info Box
+function InfoBox({ icon: Icon, label, value }) {
+  return (
+    <div className="bg-[#1D232F] info-box rounded-lg p-2 text-center">
+      <Icon className="w-4 h-4 mx-auto text-[#1DEDF4] icon mb-1" />
+      <p className="text-[10px] text-gray-400 uppercase label tracking-wide">{label}</p>
+      <p className="text-sm font-semibold text-white value truncate capitalize">{value}</p>
+    </div>
+  );
+}
 
-const InfoItem = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-4 p-4 border rounded-lg bg-muted">
-    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-muted-foreground/20">
-      <Icon className="w-5 h-5 text-foreground" />
+// ID Card Component
+const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
+  const batch = user.sscCompletion === "yes" ? user["ssc-batch"] : user["hsc-batch"];
+  const group = user.sscCompletion === "yes" ? user["ssc-group"] : user["hsc-group"];
+
+  return (
+    <div
+      ref={ref}
+      className="w-[4in] h-[6in] bg-[#0F1319] rounded-xl overflow-hidden border-2 border-linear-to-r from-[#1DEDF4] to-[#9763EE] relative"
+      style={{ fontFamily: "'Outfit', sans-serif" }}
+    >
+      {/* Header gradient bar */}
+      <div className="h-16 bg-linear-to-r from-[#1DEDF4] to-[#9763EE] relative">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-black font-bold text-lg tracking-wider uppercase">
+            Event Pass
+          </span>
+        </div>
+        <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-primary-foreground/50" />
+        <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-primary-foreground/50" />
+      </div>
+
+      {/* Main content */}
+      <div className="p-4 flex flex-col h-[calc(6in-4rem)]">
+        {/* Photo and Name Section */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-lg overflow-hidden bg-linear-to-r from-[#1DEDF4] to-[#9763EE]">
+              {user.photo ? (
+                <img
+                  src={user.photo + "?nocache=" + Date.now()}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.target.src = "/fallback.jpg"; }}
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <span className="text-3xl font-bold text-black">
+                    {user.fullName?.charAt(0) || "?"}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent truncate gradient-text">
+              {user.fullName}
+            </h2>
+            <div className="flex items-center gap-1 mt-1 text-muted-foreground text-xs">
+              <Mail className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate">{user.email}</span>
+            </div>
+            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground text-xs">
+              <Phone className="w-3 h-3 flex-shrink-0" />
+              <span>{user.phone}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <InfoBox icon={Calendar} label="Batch" value={batch || "N/A"} />
+          <InfoBox icon={Users} label="Group" value={group || "N/A"} />
+          <InfoBox icon={Shirt} label="T-Shirt" value={user.tshirt} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <InfoBox icon={UserPlus} label="Guests" value={user.guests} />
+          <InfoBox icon={Car} label="Parking" value={user.parking} />
+        </div>
+
+        {/* Payment Section */}
+        <div className="bg-gray-600 rounded-lg px-3 py-1 mb-2 payment">
+          <div className="flex items-center gap-2 mb-2">
+            <CreditCard className="w-4 h-4 text-[#1DEDF4]" />
+            <span className="font-semibold text-sm">Payment</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  user.paymentStatus ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"
+                }`}
+              >
+                {user.paymentStatus ? "✓ Paid" : "✗ Not Paid"}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs text-gray-400">Total</span>
+              <p className="font-bold text-lg bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent gradient-text">
+                BDT {user.totalAmount}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* QR Code Section */}
+        <div className="mt-auto flex items-center justify-between p-1 border-t border-border">
+          <div className="text-xs text-muted-foreground">
+            <p className="font-medium text-white gradient-text">Scan to verify</p>
+            <p>Present at entry</p>
+          </div>
+          <div className="w-20 h-20 rounded-lg p-1">
+            <img
+              src={qrImage}
+              crossOrigin="anonymous"
+              referrerPolicy="no-referrer"
+              alt="QR Code"
+              className="w-full h-full rounded-md"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom decorative bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 id-card-gradient" />
     </div>
-    <div className="flex-1">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="font-semibold break-words">{value}</p>
-    </div>
-  </div>
-);
+  );
+});
 
 export default function ProfileCardPage() {
   const [user, setUser] = useState(null);
@@ -29,230 +160,96 @@ export default function ProfileCardPage() {
   const { tran_id } = useParams();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
         const res = await axios.get(`https://reunion-cpscm-server.vercel.app/verifyUser/${tran_id}`);
         setUser(res.data);
-
-        const verifyURL = `https://reunion-cpscm.vercel.app/verifyUser/${tran_id}`;
-        const qr = await QRCode.toDataURL(verifyURL);
+        const qr = await QRCode.toDataURL(`https://reunion-cpscm.vercel.app/verifyUser/${tran_id}`);
         setQrImage(qr);
       } catch (err) {
-        console.error("Fetch user error:", err);
+        console.error("Error:", err);
       }
     };
-    if (tran_id) {
-      fetchUser();
-    }
+    if (tran_id) fetchData();
   }, [tran_id]);
 
- const handleDownloadPDF = async () => {
-  const element = pdfRef.current;
-  if (!element || !user) return;
+  const handleDownloadPDF = async () => {
+    const element = pdfRef.current;
+    if (!element || !user) return;
 
-  try {
-    // Remove all backgrounds, borders, and shadows
-      Array.from(element.querySelectorAll("*")).forEach((el) => {
-        el.style.background = "#F3F4F6";
-        el.style.padding = "10px";
-        el.style.borderRadius = "10px"; // ✅ corrected
-        el.style.border = "none";
-        el.style.boxShadow = "none";
-        el.style.outline = "none";
-        el.style.color = "black";
-      });
+ // Backup styles and remove borders/outlines/shadows
+const backup = [];
+Array.from(element.querySelectorAll("*")).forEach((el) => {
+  backup.push({
+    el,
+    border: el.style.border,
+    outline: el.style.outline,
+    boxShadow: el.style.boxShadow,
+    background: el.style.background,
+    color: el.style.color,
+  });
+
+  el.style.border = "none";
+  el.style.outline = "none";
+  el.style.boxShadow = "none";
+});
+
+// Set InfoBox background light gray and text black
+Array.from(element.querySelectorAll(".info-box")).forEach((el) => {
+  el.style.border = "1px solid black";
+  el.style.background = "none"; // light gray
+  el.style.color = "black";
+});
     
-    Array.from(element.querySelectorAll(".badge")).forEach((el) => {
-      el.style.backgroundColor = "black";
-      el.style.color = "white";
-    });
+// Select all icons, labels, and value elements inside InfoBox
+Array.from(element.querySelectorAll(".info-box svg, .info-box p")).forEach((el) => {
+  el.style.color = "black";
+});
+    
+Array.from(element.querySelectorAll(".payment")).forEach((el) => {
+  el.style.border = "1px solid black";
+  el.style.background = "none"; // light gray
+  el.style.color = "black";
+});
+    
+Array.from(element.querySelectorAll(".gradient-text")).forEach((el) => {
+  el.style.color = "black";
+});
 
 
 
-    // Convert DOM to image
-    const dataUrl = await domtoimage.toPng(element, {
-      quality: 1,
-      bgcolor: "#ffffff", // PDF background
-      style: {
-        transform: "scale(1)",
-        transformOrigin: "top left",
-        border: "none",
-        boxShadow: "none",
-        background: "transparent",
-      },
-    });
-
-    const img = new Image();
-    img.src = dataUrl;
-    await new Promise((resolve) => (img.onload = resolve));
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    const maxWidth = pageWidth - margin * 2;
-    const maxHeight = pageHeight - margin * 2;
-
-    const imgRatio = img.width / img.height;
-    const pageRatio = maxWidth / maxHeight;
-
-    let finalWidth, finalHeight;
-    if (imgRatio > pageRatio) {
-      finalWidth = maxWidth;
-      finalHeight = maxWidth / imgRatio;
-    } else {
-      finalHeight = maxHeight;
-      finalWidth = maxHeight * imgRatio;
+    try {
+      const dataUrl = await domtoimage.toPng(element, { quality: 1, bgcolor: "transparent" });
+      const pdf = new jsPDF({ orientation: "portrait", unit: "in", format: [4, 6] });
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve) => (img.onload = resolve));
+      pdf.addImage(dataUrl, "PNG", 0, 0, 4, 6);
+      pdf.save(`${user.fullName}-event-pass.pdf`);
+    } catch (err) {
+      console.error("PDF error:", err);
+    } finally {
+      // Restore original styles
+      backup.forEach(({ el, border, outline, boxShadow }) => {
+        el.style.border = border;
+        el.style.outline = outline;
+        el.style.boxShadow = boxShadow;
+      });
     }
+  };
 
-    const x = (pageWidth - finalWidth) / 2;
-    const y = (pageHeight - finalHeight) / 2; // Center vertically
-
-    pdf.addImage(dataUrl, "PNG", x, y, finalWidth, finalHeight);
-    pdf.save(`${user.fullName}-registration.pdf`);
-  } catch (err) {
-    console.error("PDF generation error:", err);
-  }
-};
-
-
-  if (!user) return <p className="text-center mt-8">Loading...</p>;
+  if (!user) return <p className="text-center mt-8 text-foreground">Loading...</p>;
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 flex flex-col items-center bg-[#0F1319]">
+    <div className="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col items-center bg-[#0F1319]">
       <button
         onClick={handleDownloadPDF}
-        className="mb-4 bg-[#1DEDF4] hover:bg-[#1DEDF4]/90 text-gray-800 font-bold px-4 py-2 rounded transition"
+        className="mb-6 bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg"
       >
-        Download PDF
+        <FileDown className="w-5 h-5" /> Download PDF
       </button>
 
-      <div className="w-full max-w-4xl space-y-6">
-        <Card ref={pdfRef} className="pdf-safe border border-gray-600 shadow-none bg-[#13171E] glass">
-          <CardHeader className="text-center pb-0">
-            {user.photo && (
-                <div className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full overflow-hidden border-4 border-purple-600 shadow-md">
-                  <img
-                    src={user.photo + "?nocache=" + Date.now()}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                    crossOrigin="anonymous"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      e.target.src = "/fallback.jpg";
-                    }}
-                  />
-                </div>
-              )}
-
-            <CardTitle className="text-2xl bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent md:text-4xl font-medium">{user.fullName}</CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <InfoItem icon={Mail} label="Email" value={user.email} />
-              <InfoItem icon={Phone} label="Phone" value={user.phone} />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <InfoItem
-                icon={Calendar}
-                label="Batch"
-                value={user.sscCompletion === "yes" ? user["ssc-batch"] : user["hsc-batch"]}
-              />
-              <InfoItem
-                icon={Users}
-                label="Group"
-                value={user.sscCompletion === "yes" ? user["ssc-group"] : user["hsc-group"]}
-              />
-              <InfoItem icon={Shirt} label="T-Shirt Size" value={user.tshirt} />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-              <InfoItem icon={UserPlus} label="Guests" value={user.guests} />
-              <InfoItem icon={UserPlus} label="Parking" value={user.parking} />
-              <div className="text-center">
-                <img
-                  src={qrImage}
-                  crossOrigin="anonymous"
-                  referrerPolicy="no-referrer"
-                  alt="QR Code"
-                  className="w-24 md:w-32 mx-auto"
-                />
-                <p className="text-xs text-white mt-1">Scan to verify</p>
-              </div>
-            </div>
-
-            <div className="p-4 border rounded-lg bg-gray-200">
-              <h3 className="text-lg md:text-xl font-bold flex items-center gap-2 mb-3">
-                <CreditCard className="w-5 h-5" /> Payment Details
-              </h3>
-              <div className="flex justify-between mb-2">
-                <span>Status</span>
-                <Badge className={`${user.paymentStatus ? "bg-green-600" : "bg-destructive"} text-white px-2 py-1 rounded badge`}>
-                  {user.paymentStatus ? "✓ Paid" : "✗ Not Paid"}
-                </Badge>
-              </div>
-              <div className="flex justify-between border-t pt-2">
-                <span className="whitespace-nowrap">Total Amount</span>
-                <span className="text-lg md:text-xl font-bold whitespace-nowrap">BDT {user.totalAmount}</span>
-              </div>
-
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-        {/* PDF-only styles: remove backgrounds, borders, shadows, force wrapping and fixed width for stable capture */}
-      <style jsx>{`
-        .pdf-safe {
-          /* fixed capture width to make dom-to-image consistent */
-          width: 800px !important;
-          padding: 16px !important;
-        }
-
-        /* remove backgrounds, borders and shadows inside the pdf snapshot only */
-        .pdf-safe, .pdf-safe * {
-          background: transparent !important;
-          background-color: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-          outline: none !important;
-          -webkit-box-shadow: none !important;
-        }
-
-        /* ensure text wraps and does not overflow */
-        .pdf-safe * {
-          color: #000 !important;
-          max-width: 100% !important;
-          overflow-wrap: break-word !important;
-          word-wrap: break-word !important;
-          hyphens: auto !important;
-          white-space: normal !important;
-        }
-
-        /* specific fix for elements that used borders or background in markup */
-        .pdf-safe .border,
-        .pdf-safe [class*="border-"] {
-          border: none !important;
-        }
-        .pdf-safe [class*="bg-"] {
-          background: transparent !important;
-        }
-
-        /* remove rounded clipping if you want pure rectangle in PDF - optional */
-        .pdf-safe .rounded-full,
-        .pdf-safe .rounded-lg,
-        .pdf-safe .rounded {
-          border-radius: 0 !important;
-        }
-      `}</style>
-
-
+      <IDCard ref={pdfRef} user={user} qrImage={qrImage} />
     </div>
   );
 }

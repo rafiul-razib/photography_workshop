@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-import { Plus, Minus, Sparkles } from "lucide-react";
+import { Plus, Minus, Sparkles, FileSymlink } from "lucide-react";
 
 
 export default function Registration() {
@@ -146,7 +146,7 @@ export default function Registration() {
           <div className="max-w-4xl mx-auto text-center mb-2">
             <div className="inline-block mb-4 animate-scale-in">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-white">
-                <Sparkles className="h-4 w-4 text-[#04d5ecf5]" />
+                <FileSymlink className="text-[#1DEDF4]" />
                 Registration Open
               </span>
             </div>
@@ -636,7 +636,7 @@ export default function Registration() {
                 className="bg-[#1DEDF4] md:glass w-full text-lg py-6  text-white hover:bg-[#1DEDF4]"
                 disabled={loading || !uploadedImageUrl}
               >
-                Proceed Checkout <Sparkles className="ml-2 h-5 w-5" />
+                Proceed Checkout <FileSymlink className="text-white" />
               </Button>
               </form>
             </Form>
