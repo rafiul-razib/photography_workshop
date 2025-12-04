@@ -230,8 +230,10 @@ Array.from(element.querySelectorAll(".gradient-text")).forEach((el) => {
       console.error("PDF error:", err);
     } finally {
       // Restore original styles
-      backup.forEach(({ el, border, outline, boxShadow }) => {
+      backup.forEach(({ el, border, outline, boxShadow, background, color }) => {
         el.style.border = border;
+        el.style.background = background;
+        el.style.color = color;
         el.style.outline = outline;
         el.style.boxShadow = boxShadow;
       });
