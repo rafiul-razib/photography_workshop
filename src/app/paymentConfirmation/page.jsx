@@ -7,6 +7,7 @@ import axios from "axios";
 
 export default function PaymentConfirmation() {
   const [data, setData] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
   // const [preview, setPreview] = useState(null);
 
   useEffect(() => {
@@ -55,6 +56,8 @@ const handleConfirm = async () => {
   }
 };
 
+  
+   
 
   return (
     <div className="min-h-screen bg-[#0F1319] p-6 flex justify-center">
@@ -85,15 +88,29 @@ const handleConfirm = async () => {
           <Info label="Payable Amount" value={1700+data.guests*1000} />
         </div>
 
-        <div>
-          <h1 className="text-red-600 text-center">
-         I hereby confirm that all information provided during my registration is accurate and truthful. I acknowledge that I am fully responsible for any discrepancy or issue arising from this information, and I agree to comply with any decision made by CPSCM and the organizing committee.
-          </h1>
+
+        <div className="mt-6 space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="agreement"
+              checked={isChecked}
+              onChange={(e) => setIsChecked(e.target.checked)}
+              className="mt-1 h-5 w-5"
+              required
+            />
+
+            <span className="text-red-600 text-center">
+               I hereby confirm that all information provided during my registration is accurate and truthful. I acknowledge that I am fully responsible for any discrepancy or issue arising from this information, and I agree to comply with any decision made by CPSCM and the organizing committee.
+            </span>
+          </label>
         </div>
+
 
         {/* BUTTON */}
         <Button
           onClick={handleConfirm}
+          disabled={!isChecked}
           className="w-full mt-6 bg-[#1DEDF4] text-primary-foreground py-4 text-lg"
         >
           Confirm & Pay
