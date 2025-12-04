@@ -28,6 +28,7 @@ import { Card } from "@/components/ui/card";
 
 import { Plus, Minus, Sparkles } from "lucide-react";
 
+
 export default function Registration() {
   const form = useForm();
 
@@ -40,6 +41,7 @@ export default function Registration() {
   const [preview, setPreview] = useState("");
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [photoError, SetPhotoError] = useState("");
 
 
   // console.log(uploadedImageUrl);
@@ -53,36 +55,69 @@ export default function Registration() {
   // CLOUDINARY UPLOAD
   // -----------------------
   const handleImageChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
 
-    setLoading(true)
+  if (!file) {
+    SetPhotoError("Image is required!");
+    return;
+  }
 
-    setPreview(URL.createObjectURL(file));
+  // Allowed formats
+  const allowedTypes = ["image/jpeg", "image/png"];
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "lt4vyrjl");
-    formData.append("cloud_name", "datldhldb");
+  // Validate type
+  if (!allowedTypes.includes(file.type)) {
+    SetPhotoError("Only JPEG or PNG images are allowed.");
+    e.target.value = "";
+    return;
+  }
 
-    try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/datldhldb/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+  // Validate size (500 KB = 500 * 1024 bytes)
+  if (file.size > 500 * 1024) {
+    SetPhotoError("Image must be less than 500 KB.");
+    e.target.value = "";
+    return;
+  }
 
-      const data = await res.json();
-      setLoading(false);
-      setUploadedImageUrl(data.secure_url); // <— final image URL
+  // Clear previous error
+  SetPhotoError("");
+
+  setLoading(true);
+
+  // local preview
+  setPreview(URL.createObjectURL(file));
+
+  // Upload to Cloudinary
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "lt4vyrjl");
+  formData.append("cloud_name", "datldhldb");
+
+  try {
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/datldhldb/image/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+    setLoading(false);
+
+    if (data.secure_url) {
+      setUploadedImageUrl(data.secure_url);
       form.setValue("photo", data.secure_url);
-      // console.log("uploadedImageUrl", data.secure_url);
-    } catch (err) {
-      console.error("Upload failed:", err);
+    } else {
+      SetPhotoError("Failed to upload image.");
     }
-  };
+  } catch (err) {
+    console.error("Upload failed:", err);
+    SetPhotoError("Upload failed! Please try again.");
+    setLoading(false);
+  }
+};
+
 
   // -----------------------
   // SUBMIT HANDLER
@@ -503,7 +538,7 @@ export default function Registration() {
                 
 
                 <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Addition Info
+                  Additional Info
                 </h2>
                 
 
@@ -544,7 +579,7 @@ export default function Registration() {
                 <FormField
                   control={form.control}
                   name="photo"
-                  rules={{ required: "Photo is required" }}
+                  rules={{ required: "Image is required!" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-white">Upload Photo *</FormLabel>
@@ -584,11 +619,15 @@ export default function Registration() {
                           </label>
                         </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage/>
                     </FormItem>
                   )}
                 />
-     
+
+                 {photoError && (
+                    <p className="text-red-500 text-sm mt-2 text-center">**{photoError}</p>
+                  )}
+                    
 
                <Button
                 type="submit"
