@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import 'animate.css';
 
 import {
   Form,
@@ -152,7 +153,7 @@ export default function Registration() {
 
             <h1 className="text-2xl text-white md:text-6xl font-bold mb-4 animate-fade-in-up">
               CPSCM Reunion &amp;<br />
-              <span className="bg-linear-90 from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">Silver Jubilee 2025</span>
+              <span className="animate__animated animate__flipInX animate__duration-2s bg-linear-90 from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">Silver Jubilee 2025</span>
             </h1>
           </div>
         </div>

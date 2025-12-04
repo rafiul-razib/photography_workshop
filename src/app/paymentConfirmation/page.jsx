@@ -85,6 +85,12 @@ const handleConfirm = async () => {
           <Info label="Payable Amount" value={1700+data.guests*1000} />
         </div>
 
+        <div>
+          <h1 className="text-red-600 text-center">
+         I hereby confirm that all information provided during my registration is accurate and truthful. I acknowledge that I am fully responsible for any discrepancy or issue arising from this information, and I agree to comply with any decision made by CPSCM and the organizing committee.
+          </h1>
+        </div>
+
         {/* BUTTON */}
         <Button
           onClick={handleConfirm}
