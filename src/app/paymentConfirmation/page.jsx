@@ -17,7 +17,7 @@ export default function PaymentConfirmation() {
       setData(JSON.parse(stored));
     }
 
-    console.log(data);
+    // console.log(data);
 
     // setPreview(previewUrl);
   }, []);
@@ -33,7 +33,7 @@ const handleConfirm = async () => {
       payload
     );
     
-    console.log(res);
+    // console.log(res);
 
     if (res.data?.url) {
       window.location.href = res.data?.url
