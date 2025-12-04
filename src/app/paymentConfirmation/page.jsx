@@ -29,7 +29,7 @@ const handleConfirm = async () => {
     const payload = { ...data };
 
     const res = await axios.post(
-      "http://localhost:5000/register",
+      "https://reunion-cpscm-server.vercel.app/register",
       payload
     );
     

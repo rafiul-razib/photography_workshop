@@ -75,7 +75,7 @@ export default function Registration() {
       setLoading(false);
       setUploadedImageUrl(data.secure_url); // <— final image URL
       form.setValue("photo", data.secure_url);
-      console.log("uploadedImageUrl", data.secure_url);
+      // console.log("uploadedImageUrl", data.secure_url);
     } catch (err) {
       console.error("Upload failed:", err);
     }

@@ -31,10 +31,10 @@ export default function ProfileCardPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/verifyUser/${tran_id}`);
+        const res = await axios.get(`https://reunion-cpscm-server.vercel.app/verifyUser/${tran_id}`);
         setUser(res.data);
 
-        const verifyURL = `http://localhost:3000/verifyUser/${tran_id}`;
+        const verifyURL = `https://reunion-cpscm.vercel.app/verifyUser/${tran_id}`;
         const qr = await QRCode.toDataURL(verifyURL);
         setQrImage(qr);
       } catch (err) {

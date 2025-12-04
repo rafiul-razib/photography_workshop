@@ -15,7 +15,7 @@ const VerifyUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/verifyUser/${transactionId}`);
+        const res = await axios.get(`https://reunion-cpscm-server.vercel.app/verifyUser/${transactionId}`);
         setUser(res.data);
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -26,9 +26,11 @@ const VerifyUser = () => {
     fetchUser();
   }, [transactionId]);
 
+  console.log(user);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from- via-accent/20 to-background flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl border-2">
           <CardHeader className="space-y-4">
             <Skeleton className="h-32 w-32 rounded-full mx-auto" />
@@ -69,11 +71,11 @@ const VerifyUser = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-[#0b182b] via-[#042e6d] to-[#5d8dd3] py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Verified Badge */}
         <div className="flex justify-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <Badge className="px-6 py-3 text-lg bg-verified hover:bg-verified/90 text-verified-foreground flex items-center gap-2 shadow-lg">
+          <Badge className="px-6 py-3 text-lg bg-green-500 hover:bg-verified/90 text-verified-foreground flex items-center gap-2 shadow-lg">
             <CheckCircle2 className="w-6 h-6" />
             Verified User
           </Badge>
