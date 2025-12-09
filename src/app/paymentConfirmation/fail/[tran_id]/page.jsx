@@ -1,7 +1,19 @@
+"use client"
 import { XCircle, RefreshCw, Headset } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const PaymentFailed = () => {
+
+   const handleWhatsApp = () => {
+    const phone = "8801717224746"; // your number without +
+    const message = "Hello! I need help regarding CPSCM registration payment failure."; 
+    const encoded = encodeURIComponent(message);
+
+    window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-8">
@@ -25,16 +37,19 @@ const PaymentFailed = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <Button 
+          <Link href={`/paymentConfirmation`}>
+            <Button 
             size="lg"
             className="bg-linear-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-semibold px-8 py-6 text-lg shadow-lg shadow-red-500/25 transition-all duration-300 hover:shadow-red-500/40 hover:scale-105"
           >
             <RefreshCw className="w-5 h-5 mr-2" />
             Try Again
           </Button>
+          </Link>
           
           <Button 
             variant="outline"
+            onClick = {handleWhatsApp}
             size="lg"
             className="border-slate-600 bg-slate-800/50 text-slate-200 hover:bg-slate-700 hover:text-white hover:border-slate-500 px-8 py-6 text-lg transition-all duration-300 hover:scale-105"
           >

@@ -31,7 +31,13 @@ import { Plus, Minus, Sparkles, FileSymlink } from "lucide-react";
 
 
 export default function Registration() {
-  const form = useForm();
+  const form = useForm({
+    defaultValues: {
+      sscCompletion: "yes",
+      hscCompletion: "yes",
+      parking: "no"  // <-- This is the key
+  },
+  });
 
   const sscDone = form.watch("sscCompletion");
   const hscDone = form.watch("hscCompletion");
@@ -290,7 +296,7 @@ export default function Registration() {
                       <FormItem>
                         <FormLabel className="text-white">Completed SSC from CPSCM?</FormLabel>
                         <FormControl>
-                          <Select className="bg-white" onValueChange={field.onChange}>
+                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
                           <SelectTrigger className="text-white w-full">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -313,7 +319,7 @@ export default function Registration() {
                       <FormItem>
                         <FormLabel className="text-white">Completed HSC from CPSCM?</FormLabel>
                         <FormControl>
-                          <Select className="bg-white" onValueChange={field.onChange}>
+                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
                           <SelectTrigger className="text-white w-full">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -495,7 +501,52 @@ export default function Registration() {
                   Event Details
                 </h2>
 
-                <p className="text-white">BDT 1700 per head. Each guest (adult) +BDT 1000. Guests allowed: spouse or children only. No payment for children under 5. (Please add guest names below.)</p>
+                <div className="">
+                   {/* <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4"> */}
+                    <div className=" p-5 mx-auto m-4 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 shadow-xl overflow-hidden max-w-xs w-full">
+                      {/* Decorative background elements */}
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2"></div>
+                      <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-400/20 rounded-full blur-lg translate-y-1/2 -translate-x-1/2"></div>
+                      
+                      {/* Main Price */}
+                      <div className="relative text-center mb-4">
+                        <span className="text-xs uppercase tracking-widest text-white/80 font-medium">Reunion Registration Fee</span>
+                        <p className="text-3xl font-black text-white drop-shadow-lg mt-1">
+                          BDT <span className="bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent">1700</span>
+                        </p>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent my-4"></div>
+
+                      {/* Additional Guests Section */}
+                      <div className="relative">
+                        <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                          <span className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs">👥</span>
+                          Additional Guests
+                        </h3>
+                        
+                        <ul className="space-y-2 text-white text-sm">
+                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></span>
+                            <span>Adult guest : <strong className="text-yellow-300">+ BDT 1000</strong> each</span>
+                          </li>
+                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                            <span className="w-1.5 h-1.5 bg-pink-400 rounded-full"></span>
+                            <span>Guests allowed : <strong className="text-pink-200">Spouse or children only</strong></span>
+                          </li>
+                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                            <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            <span>Children under 5 : <span className="inline-block bg-green-400 text-green-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1">FREE</span></span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Sparkle decorations */}
+                      <div className="absolute top-3 left-3 text-lg animate-pulse">✨</div>
+                      <div className="absolute bottom-3 right-3 text-base animate-pulse">🎉</div>
+                    </div>
+                  {/* </div> */}
 
                 <div>
                   <FormLabel className="text-white">Number of Guests</FormLabel>
@@ -504,7 +555,7 @@ export default function Registration() {
                       <Minus />
                     </Button>
 
-                    <span className="text-4xl font-bold text-gradient flex-1 text-center text-white border">
+                    <span className="text-4xl font-bold text-gradient flex-1 text-center text-white border rounded-2xl">
                       {guests}
                     </span>
 
@@ -513,6 +564,7 @@ export default function Registration() {
                     </Button>
                   </div>
                 </div>
+               </div>
                 
                 <FormField
                     control={form.control}
@@ -522,7 +574,7 @@ export default function Registration() {
                       <FormItem>
                         <FormLabel className="text-white">Do you need Car Parking Facility?</FormLabel>
                         <FormControl>
-                          <Select className="bg-white" onValueChange={field.onChange}>
+                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
                           <SelectTrigger className="text-white w-full">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -634,7 +686,7 @@ export default function Registration() {
                 type="submit"
                 size="lg"
                 className="bg-[#1DEDF4] md:glass w-full text-lg py-6  text-white hover:bg-[#1DEDF4]"
-                disabled={loading || !uploadedImageUrl}
+                disabled={loading || !uploadedImageUrl || sscDone === "no" && hscDone ==="no"}
               >
                 Proceed Checkout <FileSymlink className="text-white" />
               </Button>
