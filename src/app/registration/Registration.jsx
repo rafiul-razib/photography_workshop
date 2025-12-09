@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import tshirtSize from "../../../PDF/tshirt_size_list.png"
 import 'animate.css';
 
 import {
@@ -28,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import { Plus, Minus, Sparkles, FileSymlink } from "lucide-react";
+import Image from "next/image";
 
 
 export default function Registration() {
@@ -245,8 +247,10 @@ export default function Registration() {
                   
 
                   <div className="w-full md:w-[50%] my-4 mx-auto">
-                    <img
-                      src="https://res.cloudinary.com/datldhldb/image/upload/v1764828484/qapibrah5lzfhb9kset2.png"
+                    <Image
+                      width={600}
+                      height={400}
+                      src= {tshirtSize}
                       alt="Preview"
                       className="w-full object-cover rounded-lg border"
                     />
