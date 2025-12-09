@@ -130,7 +130,7 @@ const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
         </div>
 
         {/* QR Code Section */}
-        <div className="mt-auto flex items-center justify-between p-1 border-t border-border">
+        {/* <div className="mt-auto flex items-center justify-between p-1 border-t border-border">
           <div className="text-xs text-muted-foreground">
             <p className="font-medium text-white gradient-text">Scan to verify</p>
             <p>Present at entry</p>
@@ -144,7 +144,8 @@ const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
               className="w-full h-full rounded-md"
             />
           </div>
-        </div>
+        </div> */}
+        <div class="flex justify-center items-center my-2 p-2 font-bold text-green-300 text-outl text-4xl tracking-[0.4em]">VERIFIED</div>
       </div>
 
       {/* Bottom decorative bar */}
@@ -244,14 +245,22 @@ Array.from(element.querySelectorAll(".gradient-text")).forEach((el) => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 md:p-8 flex flex-col items-center bg-[#0F1319]">
-      <button
+      {/* <button
         onClick={handleDownloadPDF}
         className="mb-6 bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg"
       >
         <FileDown className="w-5 h-5" /> Download PDF
-      </button>
+      </button> */}
 
-      <IDCard ref={pdfRef} user={user} qrImage={qrImage} />
+      {/* <div className="flex"> */}
+        {/* <div class="flex justify-center items-center mr-3.5 p-3.5  rounded-xl h-[6in] [writing-mode:vertical-rl] rotate-180 font-bold text-green-300 text-outl text-6xl tracking-[0.4em]">
+          VERIFIED
+        </div> */}
+
+        <div>
+          <IDCard ref={pdfRef} user={user} qrImage={qrImage} />
+        </div>
+      {/* </div> */}
     </div>
   );
 }

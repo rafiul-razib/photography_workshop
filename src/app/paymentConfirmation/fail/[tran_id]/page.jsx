@@ -7,7 +7,7 @@ const PaymentFailed = () => {
 
    const handleWhatsApp = () => {
     const phone = "8801717224746"; // your number without +
-    const message = "Hello! I need help regarding CPSCM registration payment failure."; 
+    const message = "Hello! I need help regarding registration payment failure."; 
     const encoded = encodeURIComponent(message);
 
     window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
