@@ -509,7 +509,7 @@ export default function Registration() {
                    {/* <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4"> */}
                     <div className=" p-5 mx-auto m-4 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 shadow-xl overflow-hidden max-w-xs w-full">
                       {/* Decorative background elements */}
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2"></div>
+                      {/* <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2"></div> */}
                       <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-400/20 rounded-full blur-lg translate-y-1/2 -translate-x-1/2"></div>
                       
                       {/* Main Price */}
@@ -547,7 +547,7 @@ export default function Registration() {
                       </div>
 
                       {/* Sparkle decorations */}
-                      <div className="absolute top-3 left-3 text-lg animate-pulse">✨</div>
+                      <div className="absolute top-3 left-3 text-lg animate-pulse">🎉</div>
                       <div className="absolute bottom-3 right-3 text-base animate-pulse">🎉</div>
                     </div>
                   {/* </div> */}
