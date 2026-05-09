@@ -2,89 +2,82 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { HiOutlineMenuAlt3, HiOutlineX } from "react-icons/hi";
+import { FaUsers, FaRegCalendarCheck } from "react-icons/fa";
+import { IoSparklesSharp } from "react-icons/io5";
+import { RiSecurePaymentLine } from "react-icons/ri";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
+      <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center gap-2 animate-fade-in">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold text-foreground">
-              ModernApp
-            </span>
-          </div>
+          <Link href="/" className="group flex items-center gap-2">
+            <IoSparklesSharp className="h-6 w-6 text-cyan-400 transition-transform duration-300 group-hover:rotate-12" />
+            <span className="text-lg font-bold text-white">CPSCM Reunion</span>
+          </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a
-              href="#features"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#about"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="#contact"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Contact
-            </a>
+            <Link href="/" className="group inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+              <FaRegCalendarCheck className="text-cyan-300 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              Registration
+            </Link>
+            <Link href="/dashboard/allUsers" className="group inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+              <FaUsers className="text-purple-300 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              All Users
+            </Link>
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block animate-fade-in">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:shadow-lg hover:shadow-primary/20">
-              Get Started
+          <div className="hidden md:block">
+            <Button asChild className="bg-linear-to-r from-cyan-400 to-purple-500 text-slate-950 hover:opacity-90 shadow-lg shadow-cyan-500/20">
+              <Link href="/paymentConfirmation" className="inline-flex items-center gap-2">
+                <RiSecurePaymentLine />
+                Proceed to Payment
+              </Link>
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-foreground"
+            className="md:hidden text-white"
+            aria-label="Toggle menu"
           >
-            <Menu className="h-6 w-6" />
+            {isMenuOpen ? <HiOutlineX className="h-6 w-6" /> : <HiOutlineMenuAlt3 className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 animate-fade-in-up">
-            <div className="flex flex-col gap-4">
-              <a
-                href="#features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#about"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </a>
-              <a
-                href="#contact"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Contact
-              </a>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
-                Get Started
-              </Button>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden py-4 border-t border-white/10"
+            >
+              <div className="flex flex-col gap-4">
+                <Link href="/" onClick={() => setIsMenuOpen(false)} className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+                  <FaRegCalendarCheck className="text-cyan-300" />
+                  Registration
+                </Link>
+                <Link href="/dashboard/allUsers" onClick={() => setIsMenuOpen(false)} className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+                  <FaUsers className="text-purple-300" />
+                  All Users
+                </Link>
+                <Button asChild className="bg-linear-to-r from-cyan-400 to-purple-500 text-slate-950 hover:opacity-90 w-full">
+                  <Link href="/paymentConfirmation" onClick={() => setIsMenuOpen(false)} className="inline-flex items-center justify-center gap-2">
+                    <RiSecurePaymentLine />
+                    Proceed to Payment
+                  </Link>
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

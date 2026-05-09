@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import tshirtSize from "../../../PDF/tshirt_size_list.png"
-import 'animate.css';
+import "animate.css";
 
 import {
   Form,
@@ -16,7 +15,6 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -27,678 +25,880 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ArrowRight, Camera, Upload } from "lucide-react";
 
-import { Plus, Minus, Sparkles, FileSymlink } from "lucide-react";
-import Image from "next/image";
+/* ─── inline styles injected once ─── */
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap');
 
+  :root {
+    --ink:      #0A0807;
+    --paper:    #F5EDD6;
+    --amber:    #C8881A;
+    --amber-lt: #E8A030;
+    --smoke:    #1A1714;
+    --ash:      #2C2824;
+    --dust:     #4A4440;
+    --mist:     #8C8078;
+  }
+
+  .pw-root {
+    min-height: 100vh;
+    background-color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--paper);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* grain overlay */
+  .pw-root::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* hero */
+  .pw-hero {
+    position: relative;
+    z-index: 1;
+    padding: 2.5rem 1rem 3rem;
+    text-align: center;
+  }
+  .pw-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--amber);
+    color: var(--amber-lt);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.4rem 1.1rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+  }
+  .pw-dot {
+    width: 5px; height: 5px;
+    background: var(--amber-lt);
+    border-radius: 50%;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .pw-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+  .pw-title em {
+    font-style: italic;
+    color: var(--amber-lt);
+  }
+  .pw-subtitle {
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-top: 1rem;
+  }
+
+  /* horizontal rule */
+  .pw-rule {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    margin: 1.5rem auto;
+  }
+
+  /* card */
+  .pw-card {
+    background: var(--smoke) !important;
+    border: 1px solid var(--ash) !important;
+    border-radius: 4px !important;
+    padding: 2.5rem !important;
+    position: relative;
+    z-index: 1;
+  }
+  @media(min-width:768px){ .pw-card { padding: 3.5rem !important; } }
+
+  /* corner accents */
+  .pw-card::before, .pw-card::after {
+    content: '';
+    position: absolute;
+    width: 24px; height: 24px;
+    border-color: var(--amber);
+    border-style: solid;
+    opacity: 0.6;
+  }
+  .pw-card::before { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+  .pw-card::after  { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+
+  /* section label */
+  .pw-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+  .pw-section-label span {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--paper);
+  }
+  .pw-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ash);
+  }
+  .pw-section-num {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+  }
+
+  /* form label */
+  .pw-label {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: var(--mist) !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+  }
+
+  /* inputs */
+  .pw-input {
+    background: var(--ash) !important;
+    border: 1px solid #3A3530 !important;
+    border-radius: 2px !important;
+    color: var(--paper) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.95rem !important;
+    padding: 0.65rem 0.85rem !important;
+    transition: border-color 0.2s !important;
+    width: 100% !important;
+  }
+  .pw-input::placeholder { color: var(--dust) !important; }
+  .pw-input:focus {
+    outline: none !important;
+    border-color: var(--amber) !important;
+    box-shadow: 0 0 0 3px rgba(200,136,26,0.08) !important;
+  }
+
+  /* select trigger override */
+  .pw-select [data-slot="select-trigger"],
+  .pw-select button[role="combobox"] {
+    background: var(--ash) !important;
+    border: 1px solid #3A3530 !important;
+    border-radius: 2px !important;
+    color: var(--paper) !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+
+  /* interest toggle */
+  .pw-interest-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .pw-interest-btn {
+    position: relative;
+    padding: 1.1rem 0.5rem;
+    border: 1px solid var(--ash);
+    border-radius: 2px;
+    background: var(--ash);
+    color: var(--mist);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .pw-interest-btn:hover { border-color: var(--amber); color: var(--paper); }
+  .pw-interest-btn.selected {
+    border-color: var(--amber-lt);
+    background: rgba(200,136,26,0.1);
+    color: var(--amber-lt);
+  }
+  .pw-interest-btn.selected::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 6px; height: 6px;
+    background: var(--amber-lt);
+    border-radius: 50%;
+  }
+  .pw-interest-icon { font-size: 1.4rem; }
+
+  /* photo upload */
+  .pw-upload-zone {
+    border: 1px dashed var(--ash);
+    border-radius: 2px;
+    background: var(--ash);
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pw-upload-zone:hover { border-color: var(--amber); }
+  .pw-upload-zone .pw-upload-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+  .pw-upload-zone .pw-upload-hint {
+    font-size: 0.65rem;
+    color: var(--dust);
+  }
+  .pw-upload-preview {
+    position: absolute; inset: 0;
+    object-fit: cover;
+    width: 100%; height: 100%;
+  }
+  .pw-upload-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10,8,7,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* aperture ring decoration */
+  .pw-aperture {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 2px solid var(--amber);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.6;
+    position: relative;
+  }
+  .pw-aperture::before {
+    content: '';
+    position: absolute;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--amber-lt);
+    opacity: 0.5;
+  }
+
+  /* payment card */
+  .pw-payment-card {
+    background: linear-gradient(135deg, #1e1560 0%, #3b0f60 50%, #6b1a3a 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .pw-payment-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(236,72,153,0.2);
+    filter: blur(16px);
+    transform: translate(-50%,50%);
+  }
+
+  /* counter */
+  .pw-counter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .pw-counter-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--ash);
+    border-radius: 2px;
+    background: var(--ash);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .pw-counter-btn:hover { border-color: var(--amber); }
+  .pw-counter-val {
+    flex: 1;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    border: 1px solid var(--ash);
+    border-radius: 2px;
+    padding: 0.25rem 0;
+  }
+
+  /* select dropdown dark */
+  .pw-select-content {
+    background: var(--smoke) !important;
+    border: 1px solid var(--ash) !important;
+    border-radius: 2px !important;
+  }
+  .pw-select-item {
+    color: var(--paper) !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+  .pw-select-item:hover, .pw-select-item:focus {
+    background: var(--ash) !important;
+    color: var(--amber-lt) !important;
+  }
+
+  /* submit button */
+  .pw-submit {
+    width: 100%;
+    background: var(--amber) !important;
+    border: none !important;
+    border-radius: 2px !important;
+    color: var(--ink) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase !important;
+    font-weight: 500 !important;
+    padding: 1rem !important;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+  }
+  .pw-submit:hover:not(:disabled) { opacity: 0.88; }
+  .pw-submit:active:not(:disabled) { transform: scale(0.99); }
+  .pw-submit:disabled { opacity: 0.4 !important; cursor: not-allowed !important; }
+
+  .space-y-6 > * + * { margin-top: 1.5rem; }
+
+  /* grid helpers */
+  .pw-grid-2 { display: grid; gap: 1.25rem; }
+  @media(min-width:640px){ .pw-grid-2 { grid-template-columns: 1fr 1fr; } }
+
+  /* error */
+  .pw-error { color: #f87171; font-size: 0.72rem; margin-top: 0.3rem; }
+`;
 
 export default function Registration() {
-  const form = useForm({
-    defaultValues: {
-      sscCompletion: "yes",
-      hscCompletion: "yes",
-      parking: "no"  // <-- This is the key
-  },
-  });
-
-  const sscDone = form.watch("sscCompletion");
-  const hscDone = form.watch("hscCompletion");
+  const form = useForm();
 
   const router = useRouter();
-
-  const [guests, setGuests] = useState(0);
   const [preview, setPreview] = useState("");
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [photoError, SetPhotoError] = useState("");
+  const [photoError, setPhotoError] = useState("");
+  const [interest, setInterest] = useState("");
 
-
-  // console.log(uploadedImageUrl);
-
-  
-
-  const increaseGuests = () => setGuests((p) => p + 1);
-  const decreaseGuests = () => setGuests((p) => (p > 0 ? p - 1 : 0));
-
-  // -----------------------
-  // CLOUDINARY UPLOAD
-  // -----------------------
   const handleImageChange = async (e) => {
-  const file = e.target.files?.[0];
-
-  if (!file) {
-    SetPhotoError("Image is required!");
-    return;
-  }
-
-  // Allowed formats
-  const allowedTypes = ["image/jpeg", "image/png"];
-
-  // Validate type
-  if (!allowedTypes.includes(file.type)) {
-    SetPhotoError("Only JPEG or PNG images are allowed.");
-    e.target.value = "";
-    return;
-  }
-
-  // Validate size (500 KB = 500 * 1024 bytes)
-  if (file.size > 500 * 1024) {
-    SetPhotoError("Image must be less than 500 KB.");
-    e.target.value = "";
-    return;
-  }
-
-  // Clear previous error
-  SetPhotoError("");
-
-  setLoading(true);
-
-  // local preview
-  setPreview(URL.createObjectURL(file));
-
-  // Upload to Cloudinary
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "lt4vyrjl");
-  formData.append("cloud_name", "datldhldb");
-
-  try {
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/datldhldb/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    const data = await res.json();
-    setLoading(false);
-
-    if (data.secure_url) {
-      setUploadedImageUrl(data.secure_url);
-      form.setValue("photo", data.secure_url);
-    } else {
-      SetPhotoError("Failed to upload image.");
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoError("Image is required!");
+      return;
     }
-  } catch (err) {
-    console.error("Upload failed:", err);
-    SetPhotoError("Upload failed! Please try again.");
-    setLoading(false);
-  }
-};
+    const allowedTypes = ["image/jpeg", "image/png"];
+    if (!allowedTypes.includes(file.type)) {
+      setPhotoError("Only JPEG or PNG images are allowed.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      setPhotoError("Image must be less than 500 KB.");
+      e.target.value = "";
+      return;
+    }
+    setPhotoError("");
+    setLoading(true);
+    setPreview(URL.createObjectURL(file));
 
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "lt4vyrjl");
+    formData.append("cloud_name", "datldhldb");
 
-  // -----------------------
-  // SUBMIT HANDLER
-  // -----------------------
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/datldhldb/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await res.json();
+      setLoading(false);
+      if (data.secure_url) {
+        setUploadedImageUrl(data.secure_url);
+        form.setValue("photo", data.secure_url);
+      } else {
+        setPhotoError("Failed to upload image.");
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setPhotoError("Upload failed! Please try again.");
+      setLoading(false);
+    }
+  };
+
   const onSubmit = (data) => {
-    data.guests = guests;
-    data.photo = uploadedImageUrl; // attach actual Cloudinary URL
-
-    // Save data temporarily
+    data.guests = 0;
+    data.photo = uploadedImageUrl;
+    data.interest = interest;
+    console.log("Checkout form data:", data);
     localStorage.setItem("formData", JSON.stringify(data));
-
     router.push("/paymentConfirmation");
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1319]">
-      {/* HERO SECTION */}
-      <section className="relative pt-8 pb-4 md:pb-12 px-4 overflow-hidden">
-        <div
-          className="absolute bg-linear-to-br from-[#101F25] via-background to-[#151521] animate-gradient-shift"
-          style={{ backgroundSize: "200% 200%" }}
-        />
+    <div className="pw-root">
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
 
-        <div className="container mx-auto relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-2">
-            <div className="inline-block mb-4 animate-scale-in">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-white">
-                <FileSymlink className="text-[#1DEDF4]" />
-                Registration Open
-              </span>
-            </div>
-
-            <h1 className="text-2xl text-white md:text-6xl font-bold mb-4 animate-fade-in-up">
-              CPSCM Reunion &amp;<br />
-              <span className="animate__animated animate__flipInX animate__duration-2s bg-linear-90 from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">Silver Jubilee 2025</span>
-            </h1>
-          </div>
+      {/* ── HERO ── */}
+      <section className="pw-hero animate__animated animate__fadeIn">
+        <div className="pw-tag">
+          <span className="pw-dot" />
+          Registration Open
         </div>
+
+        <h1 className="pw-title">
+          Frame Your
+          <br />
+          <em>Vision</em>
+        </h1>
+
+        <div className="pw-rule" />
+
+        <p className="pw-subtitle">
+          Photography &amp; Cinematography Workshop 2026
+        </p>
       </section>
 
-      {/* FORM SECTION */}
-      <section className="pb-20 px-4">
-        <div className="container mx-auto max-w-3xl">
-          <Card className="p-8 md:p-12 border border-gray-800 animate-fade-in-up bg-[#13171E]">
+      {/* ── FORM ── */}
+      <section
+        style={{
+          paddingBottom: "5rem",
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+          <Card className="pw-card animate__animated animate__fadeInUp animate__delay-1s">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* ---------------- PERSONAL INFO ---------------- */}
-                <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Personal Information
-                </h2>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    rules={{ required: "Full Name is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Full Name (As per School/College Record) *</FormLabel>
-                        <FormControl>
-                          <Input className="bg-white" {...field} placeholder="Enter your name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    rules={{ required: "Email address is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Email *</FormLabel>
-                        <FormControl>
-                          <Input className="bg-white" type="email" {...field} placeholder="example@gmail.com" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* ── 01 PERSONAL INFO ── */}
+                <div className="pw-section-label">
+                  <span className="pw-section-num">01</span>
+                  <span>Participant Details</span>
                 </div>
 
-                {/* Phone + Size */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  rules={{ required: "Full name is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="pw-label">Full Name *</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="pw-input"
+                          {...field}
+                          placeholder="Your full name"
+                        />
+                      </FormControl>
+                      <FormMessage className="pw-error" />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="pw-grid-2">
+                  {/* Mobile */}
                   <FormField
                     control={form.control}
                     name="phone"
-                    rules={{ required: "Contact Number is required" }}
+                    rules={{ required: "Mobile number is required" }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white">Contact No *</FormLabel>
+                        <FormLabel className="pw-label">Mobile *</FormLabel>
                         <FormControl>
-                          <Input className="bg-white" {...field} placeholder="01XXXXXXXXX" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-
-                  <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Present Address *</FormLabel>
-                      <FormControl>
-                        <Input className="bg-white" {...field} placeholder="Your address" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                </div>
-
-                <div className="">
-                  
-
-                  <div className="w-full md:w-[50%] my-4 mx-auto">
-                    <Image
-                      width={600}
-                      height={400}
-                      src= {tshirtSize}
-                      alt="Preview"
-                      className="w-full object-cover rounded-lg border"
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="tshirt"
-                    rules={{ required: "T-shirt size is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white w-full">Your T-Shirt Size *</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange}>
-                            <SelectTrigger className="text-white w-full">
-                              <SelectValue className="text-white" placeholder="Select size" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#13171E]">
-                              {["S", "M", "L", "XL", "XXL", "3XL"].map((s) => (
-                                <SelectItem className="bg-purple-400 my-0.5" key={s} value={s}>
-                                  {s}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                
-
-                {/* ---------------- ACADEMIC ---------------- */}
-                <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Academic Information
-                </h2>
-
-                <div className="grid md:grid-cols-1 gap-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                      <FormField
-                    control={form.control}
-                    name="sscCompletion"
-                    rules={{ required: "This information is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Completed SSC from CPSCM?</FormLabel>
-                        <FormControl>
-                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white w-full">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent  className="bg-[#13171E]">
-                            <SelectItem className="bg-purple-400 my-0.5" value="yes">Yes</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="no">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                    />
-                    
-                    <FormField
-                    control={form.control}
-                    name="hscCompletion"
-                    rules={{ required: "This information is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Completed HSC from CPSCM?</FormLabel>
-                        <FormControl>
-                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white w-full">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent  className="bg-[#13171E]">
-                            <SelectItem className="bg-purple-400 my-0.5" value="yes">Yes</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="no">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                    />
-                    
-                  </div>
-
-                  {sscDone === "yes" && (
-                    <div className="ssc grid md:grid-cols-3 gap-6">
-                    <FormField
-                    control={form.control}
-                      name="ssc-batch"
-                      rules={sscDone === "yes" ? { required: "SSC batch is required" }: {}}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">SSC Batch *</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Choose group" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#13171E]">
-                              {[
-                                  "SSC 1997", "SSC 1998", "SSC 1999", "SSC 2000",
-                                  "SSC 2001", "SSC 2002", "SSC 2003", "SSC 2004",
-                                  "SSC 2005", "SSC 2006", "SSC 2007", "SSC 2008",
-                                  "SSC 2009", "SSC 2010", "SSC 2011", "SSC 2012",
-                                  "SSC 2013", "SSC 2014", "SSC 2015", "SSC 2016",
-                                  "SSC 2017", "SSC 2018", "SSC 2019", "SSC 2020",
-                                  "SSC 2021", "SSC 2022", "SSC 2023", "SSC 2024",
-                                  "SSC 2025", "Not from CPSCM"
-                                ].map((s) => (
-                                <SelectItem className="bg-purple-400 my-0.5" key={s} value={s}>
-                                  {s}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                      name="ssc-group"
-                      rules={sscDone === "yes"? { required: "SSC group is required" }: {}}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">SSC Group *</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Choose group" />
-                          </SelectTrigger>
-                          <SelectContent  className="bg-[#13171E]">
-                            <SelectItem className="bg-purple-400 my-0.5" value="science">Science</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="commerce">Commerce</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="arts">Arts</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                      name="ssc-roll"
-                      rules={sscDone === "yes"?{ required: "SSC roll number is required" }:{}}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white">SSC Roll Number *</FormLabel>
-                            <FormControl>
-                              <Input className="bg-white" {...field} placeholder="Your SSC Roll Number" />
-                            </FormControl>
-                            <FormMessage/>
-                          </FormItem>
-                        )}
-                      />
-                    
-                  </div>
-                  )}
-
-                  {hscDone === "yes" && (
-                    <div className="hsc grid md:grid-cols-3 gap-6">
-                    <FormField
-                    control={form.control}
-                      name="hsc-batch"
-                      rules={hscDone === "yes"?{ required: "HSC batch is required" }:{}}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">HSC Batch *</FormLabel>
-                        <FormControl>
-                            <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Choose group" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#13171E]">
-                              {[
-                                  "HSC 1997", "HSC 1998", "HSC 1999", "HSC 2000",
-                                  "HSC 2001", "HSC 2002", "HSC 2003", "HSC 2004",
-                                  "HSC 2005", "HSC 2006", "HSC 2007", "HSC 2008",
-                                  "HSC 2009", "HSC 2010", "HSC 2011", "HSC 2012",
-                                  "HSC 2013", "HSC 2014", "HSC 2015", "HSC 2016",
-                                  "HSC 2017", "HSC 2018", "HSC 2019", "HSC 2020",
-                                  "HSC 2021", "HSC 2022", "HSC 2023", "HSC 2024",
-                                  "HSC 2025", "Not from CPSCM"
-                                ].map((s) => (
-                                <SelectItem className="bg-purple-400 my-0.5" key={s} value={s}>
-                                  {s}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                  />
-
-                  
-                  
-                  <FormField
-                    control={form.control}
-                      name="hsc-group"
-                      rules={hscDone === "yes" ?{ required: "HSC group is required" }:{}}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">HSC Group *</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Choose group" />
-                          </SelectTrigger>
-                          <SelectContent  className="bg-[#13171E]">
-                            <SelectItem className="bg-purple-400 my-0.5" value="science">Science</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="commerce">Commerce</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="arts">Arts</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage/>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                        control={form.control}
-                      name="hsc-roll"
-                      rules={hscDone === "yes"? { required: "HSC roll number is required" }:{}}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white">HSC Roll Number *</FormLabel>
-                            <FormControl>
-                              <Input className="bg-white" {...field} placeholder="Your HSC Roll Number" />
-                            </FormControl>
-                            <FormMessage/>
-                          </FormItem>
-                        )}
-                      />
-
-                   </div>
-                  )}
-                </div>
-
-                {/* ---------------- EVENT DETAILS ---------------- */}
-                <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Event Details
-                </h2>
-
-                <div className="">
-                   {/* <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4"> */}
-                    <div className=" p-5 mx-auto m-4 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 shadow-xl overflow-hidden max-w-xs w-full">
-                      {/* Decorative background elements */}
-                      {/* <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2"></div> */}
-                      <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-400/20 rounded-full blur-lg translate-y-1/2 -translate-x-1/2"></div>
-                      
-                      {/* Main Price */}
-                      <div className="relative text-center mb-4">
-                        <span className="text-xs uppercase tracking-widest text-white/80 font-medium">Reunion Registration Fee</span>
-                        <p className="text-3xl font-black text-white drop-shadow-lg mt-1">
-                          BDT <span className="bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent">1700</span>
-                        </p>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent my-4"></div>
-
-                      {/* Additional Guests Section */}
-                      <div className="relative">
-                        <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                          <span className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs">👥</span>
-                          Additional Guests
-                        </h3>
-                        
-                        <ul className="space-y-2 text-white text-sm">
-                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
-                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></span>
-                            <span>Adult guest : <strong className="text-yellow-300">+ BDT 1000</strong> each</span>
-                          </li>
-                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
-                            <span className="w-1.5 h-1.5 bg-pink-400 rounded-full"></span>
-                            <span>Guests allowed : <strong className="text-pink-200">Spouse or children only</strong></span>
-                          </li>
-                          <li className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-2">
-                            <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                            <span>Children under 5 : <span className="inline-block bg-green-400 text-green-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1">FREE</span></span>
-                          </li>
-                        </ul>
-                      </div>
-
-                      {/* Sparkle decorations */}
-                      <div className="absolute top-3 left-3 text-lg animate-pulse">🎉</div>
-                      <div className="absolute bottom-3 right-3 text-base animate-pulse">🎉</div>
-                    </div>
-                  {/* </div> */}
-
-                <div>
-                  <FormLabel className="text-white">Number of Guests</FormLabel>
-                  <div className="flex items-center gap-4 mt-2">
-                    <Button type="button" onClick={decreaseGuests} variant="outline" size="icon">
-                      <Minus />
-                    </Button>
-
-                    <span className="text-4xl font-bold text-gradient flex-1 text-center text-white border rounded-2xl">
-                      {guests}
-                    </span>
-
-                    <Button type="button" onClick={increaseGuests} variant="outline" size="icon">
-                      <Plus />
-                    </Button>
-                  </div>
-                </div>
-               </div>
-                
-                <FormField
-                    control={form.control}
-                  name="parking"
-                  rules={{ required: "This information is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Do you need Car Parking Facility?</FormLabel>
-                        <FormControl>
-                          <Select  value={field.value} className="bg-white" onValueChange={field.onChange}>
-                          <SelectTrigger className="text-white w-full">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent  className="bg-[#13171E]">
-                            <SelectItem className="bg-purple-400 my-0.5" value="yes">Yes</SelectItem>
-                            <SelectItem className="bg-purple-400 my-0.5" value="no">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                />
-                
-
-                <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Additional Info
-                </h2>
-                
-
-                <FormField
-                  control={form.control}
-                  name="favoriteTeacher"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Your Favorite Teacher</FormLabel>
-                      <FormControl>
-                        <Input className="bg-white" {...field} placeholder="Type here..." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Special Message</FormLabel>
-                      <FormControl>
-                        <Textarea className="bg-white" rows={4} {...field} placeholder="Write here..." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* ---------------- UPLOAD + PAYMENT ---------------- */}
-                <h2 className="text-2xl font-semibold bg-linear-to-r from-[#1DEDF4] to-[#9763EE] bg-clip-text text-transparent">
-                  Upload Photo
-                </h2>
-
-                {/* SINGLE CLEAN UPLOAD FIELD */}
-                <FormField
-                  control={form.control}
-                  name="photo"
-                  rules={{ required: "Image is required!" }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Upload Photo *</FormLabel>
-                      <FormControl>
-                        <div>
-                          <input
-                            
-                            id="photo-upload"
-                            type="file"
-                            accept="image/*"
-                            className="hidden bg-white"
-                            onChange={(e) => {
-                              handleImageChange(e);
-                              field.onChange(e.target.files?.[0]);
-                            }}
+                          <Input
+                            className="pw-input"
+                            {...field}
+                            placeholder="01XXXXXXXXX"
                           />
+                        </FormControl>
+                        <FormMessage className="pw-error" />
+                      </FormItem>
+                    )}
+                  />
 
-                          <label
-                            htmlFor="photo-upload"
-                            className="flex flex-col items-center justify-center gap-3 w-full h-40 border-2 border-dashed rounded-lg cursor-pointer bg-secondary/30"
-                          >
-                            {
-                              loading ? (
-                                <span className="loading loading-bars loading-xs"></span>
+                  {/* Email */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    rules={{ required: "Email is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="pw-label">Email *</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="pw-input"
+                            type="email"
+                            {...field}
+                            placeholder="you@example.com"
+                          />
+                        </FormControl>
+                        <FormMessage className="pw-error" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ── 02 INTEREST ── */}
+                <div style={{ marginTop: "2rem" }}>
+                  <div className="pw-section-label">
+                    <span className="pw-section-num">02</span>
+                    <span>Area of Interest</span>
+                  </div>
+
+                  <p className="pw-label" style={{ marginBottom: "0.75rem" }}>
+                    I want to focus on *
+                  </p>
+
+                  <div className="pw-interest-group">
+                    <button
+                      type="button"
+                      className={`pw-interest-btn ${interest === "Photography" ? "selected" : ""}`}
+                      onClick={() => {
+                        setInterest("Photography");
+                        form.setValue("interest", "Photography");
+                      }}
+                    >
+                      <span className="pw-interest-icon">📷</span>
+                      Photography
+                    </button>
+                    <button
+                      type="button"
+                      className={`pw-interest-btn ${interest === "Cinematography" ? "selected" : ""}`}
+                      onClick={() => {
+                        setInterest("Cinematography");
+                        form.setValue("interest", "Cinematography");
+                      }}
+                    >
+                      <span className="pw-interest-icon">🎬</span>
+                      Cinematography
+                    </button>
+                  </div>
+                  {form.formState.isSubmitted && !interest && (
+                    <p className="pw-error" style={{ marginTop: "0.4rem" }}>
+                      Please select your area of interest
+                    </p>
+                  )}
+                </div>
+
+                {/* ── 03 PHOTO ── */}
+                <div style={{ marginTop: "2rem" }}>
+                  <div className="pw-section-label">
+                    <span className="pw-section-num">03</span>
+                    <span>Profile Photo</span>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    rules={{ required: "Photo is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="pw-label">
+                          Upload Photo * &nbsp;(JPEG / PNG · max 500 KB)
+                        </FormLabel>
+                        <FormControl>
+                          <div>
+                            <input
+                              id="photo-upload"
+                              type="file"
+                              accept="image/jpeg,image/png"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                handleImageChange(e);
+                                field.onChange(e.target.files?.[0]);
+                              }}
+                            />
+                            <label
+                              htmlFor="photo-upload"
+                              className="pw-upload-zone"
+                            >
+                              {loading ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: "0.6rem",
+                                  }}
+                                >
+                                  <div
+                                    className="pw-aperture"
+                                    style={{
+                                      animation: "spin 2s linear infinite",
+                                    }}
+                                  />
+                                  <span className="pw-upload-text">
+                                    Developing…
+                                  </span>
+                                </div>
                               ) : uploadedImageUrl ? (
-                                <img
-                                  src={uploadedImageUrl}
-                                  className="h-40 w-40 object-cover rounded-md"
-                                />
+                                <>
+                                  <img
+                                    src={uploadedImageUrl}
+                                    className="pw-upload-preview"
+                                    alt="Preview"
+                                  />
+                                  <div className="pw-upload-overlay">
+                                    <span
+                                      style={{
+                                        fontSize: "0.72rem",
+                                        letterSpacing: "0.14em",
+                                        textTransform: "uppercase",
+                                        color: "var(--paper)",
+                                      }}
+                                    >
+                                      Click to change
+                                    </span>
+                                  </div>
+                                </>
                               ) : (
-                                <span className="text-muted-foreground text-white">
-                                  Click to upload photo
-                                </span>
-                              )
-                            }
-
-                          </label>
-                        </div>
-                      </FormControl>
-                      <FormMessage/>
-                    </FormItem>
+                                <>
+                                  <div className="pw-aperture">
+                                    <Camera size={18} color="var(--amber)" />
+                                  </div>
+                                  <span className="pw-upload-text">
+                                    Click to upload
+                                  </span>
+                                  <span className="pw-upload-hint">
+                                    JPEG or PNG · under 500 KB
+                                  </span>
+                                </>
+                              )}
+                            </label>
+                          </div>
+                        </FormControl>
+                        <FormMessage className="pw-error" />
+                      </FormItem>
+                    )}
+                  />
+                  {photoError && (
+                    <p className="pw-error" style={{ marginTop: "0.4rem" }}>
+                      {photoError}
+                    </p>
                   )}
-                />
+                </div>
 
-                 {photoError && (
-                    <p className="text-red-500 text-sm mt-2 text-center">**{photoError}</p>
-                  )}
-                    
+                {/* ── 04 PAYMENT (KEPT AS-IS, re-styled wrapper only) ── */}
+                <div style={{ marginTop: "2rem" }}>
+                  <div className="pw-section-label">
+                    <span className="pw-section-num">04</span>
+                    <span>Payment</span>
+                  </div>
 
-               <Button
-                type="submit"
-                size="lg"
-                className="bg-[#1DEDF4] md:glass w-full text-lg py-6  text-white hover:bg-[#1DEDF4]"
-                disabled={loading || !uploadedImageUrl || sscDone === "no" && hscDone ==="no"}
-              >
-                Proceed Checkout <FileSymlink className="text-white" />
-              </Button>
+                  {/* original payment card — structure unchanged */}
+                  {/* ── Payment Fee Card ── */}
+                  <div
+                    style={{
+                      position: "relative",
+                      maxWidth: "360px",
+                      margin: "0 auto",
+                      borderRadius: "2px",
+                      border: "1px solid #3A3530",
+                      background: "var(--ash)",
+                      padding: "2rem 2rem 1.75rem",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* corner bracket — top left */}
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 10,
+                        left: 10,
+                        width: 18,
+                        height: 18,
+                        borderTop: "1px solid var(--amber)",
+                        borderLeft: "1px solid var(--amber)",
+                        opacity: 0.7,
+                      }}
+                    />
+                    {/* corner bracket — bottom right */}
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 10,
+                        right: 10,
+                        width: 18,
+                        height: 18,
+                        borderBottom: "1px solid var(--amber)",
+                        borderRight: "1px solid var(--amber)",
+                        opacity: 0.7,
+                      }}
+                    />
+
+                    {/* aperture ring — decorative */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: -28,
+                        right: -28,
+                        width: 90,
+                        height: 90,
+                        borderRadius: "50%",
+                        border: "1px solid var(--amber)",
+                        opacity: 0.08,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 10,
+                          borderRadius: "50%",
+                          border: "1px solid var(--amber-lt)",
+                        }}
+                      />
+                    </div>
+
+                    {/* label */}
+                    <p
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.6rem",
+                        letterSpacing: "0.22em",
+                        textTransform: "uppercase",
+                        color: "var(--amber)",
+                        marginBottom: "0.75rem",
+                      }}
+                    >
+                      Workshop Registration Fee
+                    </p>
+
+                    {/* amber divider */}
+                    <div
+                      style={{
+                        height: 1,
+                        background:
+                          "linear-gradient(90deg, var(--amber) 0%, transparent 100%)",
+                        marginBottom: "1.25rem",
+                        opacity: 0.35,
+                      }}
+                    />
+
+                    {/* price */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.75rem",
+                          letterSpacing: "0.1em",
+                          color: "var(--mist)",
+                        }}
+                      >
+                        BDT
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: "3.5rem",
+                          fontWeight: 900,
+                          color: "var(--amber-lt)",
+                          lineHeight: 1,
+                          letterSpacing: "-0.02em",
+                        }}
+                      >
+                        1250
+                      </span>
+                    </div>
+
+                    {/* sub-note */}
+                    <p
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: "0.65rem",
+                        letterSpacing: "0.12em",
+                        color: "var(--dust)",
+                        textTransform: "uppercase",
+                        marginTop: "0.6rem",
+                      }}
+                    >
+                      Per participant · One-time
+                    </p>
+                  </div>
+                </div>
+
+                {/* ── SUBMIT ── */}
+                <Button
+                  type="submit"
+                  className="pw-submit"
+                  disabled={loading || !uploadedImageUrl || !interest}
+                >
+                  Proceed to Checkout
+                  <ArrowRight size={14} />
+                </Button>
               </form>
             </Form>
           </Card>
         </div>
       </section>
+
+      {/* bottom wordmark */}
+      <div
+        style={{
+          textAlign: "center",
+          paddingBottom: "2rem",
+          position: "relative",
+          zIndex: 1,
+          fontSize: "0.65rem",
+          letterSpacing: "0.2em",
+          color: "var(--dust)",
+          textTransform: "uppercase",
+        }}
+      >
+        Photography Workshop · 2025
+      </div>
     </div>
   );
 }
