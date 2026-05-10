@@ -350,7 +350,7 @@ export default function VerifyUser() {
     const fetchUser = async () => {
       try {
         const res = await axios.get(
-          `https://reunion-cpscm-server.vercel.app/verifyUser/${transactionId}`,
+          `https://photography-workshop-server.vercel.app/verifyUser/${transactionId}`,
         );
         setUser(res.data);
       } catch (err) {

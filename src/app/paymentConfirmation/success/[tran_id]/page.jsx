@@ -2,11 +2,80 @@
 
 import { useEffect, useState, useRef, forwardRef } from "react";
 import axios from "axios";
-import { jsPDF } from "jspdf";
-import domtoimage from "dom-to-image-more";
+import html2canvas from "html2canvas-pro";
 import QRCode from "qrcode";
-import { FileDown } from "lucide-react";
+import { FileDown, Printer } from "lucide-react";
 import { useParams } from "next/navigation";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+const printStyles = `
+  @media print {
+    @page {
+      size: 4in 6in;
+      margin: 0;
+    }
+
+    html,
+    body {
+      width: 4in;
+      height: 6in;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      overflow: hidden !important;
+    }
+
+    body * {
+      visibility: hidden !important;
+    }
+
+    .pass-print-page,
+    .pass-print-page * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .pass-actions {
+      display: none !important;
+    }
+
+    .pass-print-area,
+    .pass-print-area * {
+      visibility: visible !important;
+    }
+
+    .pass-print-page {
+      min-height: 0 !important;
+      width: 4in !important;
+      height: 6in !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: block !important;
+      background: #fff !important;
+    }
+
+    .pass-print-area {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 4in !important;
+      height: 6in !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+    }
+
+    .id-card-print {
+      width: 4in !important;
+      height: 6in !important;
+      margin: 0 !important;
+      transform: none !important;
+      box-shadow: none !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+  }
+`;
 
 /* ─────────────────────────────────────────
    COLOUR PALETTE
@@ -308,6 +377,7 @@ const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
   return (
     <div
       ref={ref}
+      className="id-card-print"
       style={{
         position: "relative",
         width: CARD_W,
@@ -464,7 +534,7 @@ const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
               }}
             >
               <span style={{ color: C.white }}>FOCUS</span>
-              <span style={{ color: C.orange }}>CRTAFT</span>
+              <span style={{ color: C.orange }}>CRAFT</span>
             </div>
             <div
               style={{
@@ -820,18 +890,16 @@ const IDCard = forwardRef(function IDCard({ user, qrImage }, ref) {
 export default function ProfileCardPage() {
   const [user, setUser] = useState(null);
   const [qrImage, setQrImage] = useState("");
-  const pdfRef = useRef(null);
+  const cardRef = useRef(null);
   const { tran_id } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `https://reunion-cpscm-server.vercel.app/verifyUser/${tran_id}`,
-        );
+        const res = await axios.get(`${API_BASE_URL}/verifyUser/${tran_id}`);
         setUser(res.data);
         const qr = await QRCode.toDataURL(
-          `https://reunion-cpscm.vercel.app/verifyUser/${tran_id}`,
+          `${window.location.origin}/verifyUser/${tran_id}`,
         );
         setQrImage(qr);
       } catch (err) {
@@ -841,27 +909,61 @@ export default function ProfileCardPage() {
     if (tran_id) fetchData();
   }, [tran_id]);
 
-  const handleDownloadPDF = async () => {
-    const element = pdfRef.current;
+  const handleDownloadImage = async () => {
+    const element = cardRef.current;
     if (!element || !user) return;
 
     try {
-      const dataUrl = await domtoimage.toPng(element, {
-        quality: 1,
-        bgcolor: C.navy,
+      await document.fonts?.ready;
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: C.navy,
         width: 384,
         height: 576,
+        scale: 1200 / 384,
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        windowWidth: 384,
+        windowHeight: 576,
+        scrollX: 0,
+        scrollY: 0,
+        onclone: (clonedDocument) => {
+          const clonedCard = clonedDocument.querySelector(".id-card-print");
+
+          if (clonedCard) {
+            clonedCard.style.width = "384px";
+            clonedCard.style.height = "576px";
+            clonedCard.style.transform = "none";
+            clonedCard.style.margin = "0";
+          }
+        },
       });
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "in",
-        format: [4, 6],
-      });
-      pdf.addImage(dataUrl, "PNG", 0, 0, 4, 6);
-      pdf.save(`${user.fullName}-workshop-pass.pdf`);
+
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = 1200;
+      finalCanvas.height = 1800;
+
+      const context = finalCanvas.getContext("2d");
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(canvas, 0, 0, 1200, 1800);
+
+      const link = document.createElement("a");
+      link.download = `${user.fullName || "workshop"}-workshop-pass.png`;
+      link.href = finalCanvas.toDataURL("image/png");
+      link.click();
     } catch (err) {
-      console.error("PDF error:", err);
+      console.error("Image download error:", err);
     }
+  };
+
+  const handlePrintPass = () => {
+    const currentTitle = document.title;
+
+    document.title = `${user.fullName || "workshop"}-workshop-pass`;
+    window.print();
+    document.title = currentTitle;
   };
 
   if (!user)
@@ -886,6 +988,7 @@ export default function ProfileCardPage() {
 
   return (
     <div
+      className="pass-print-page"
       style={{
         minHeight: "100vh",
         background: C.navy3,
@@ -897,34 +1000,75 @@ export default function ProfileCardPage() {
         gap: "1.5rem",
       }}
     >
-      {/* download button */}
-      <button
-        onClick={handleDownloadPDF}
+      <style dangerouslySetInnerHTML={{ __html: printStyles }} />
+
+      {/* actions */}
+      <div
+        className="pass-actions"
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.65rem 1.75rem",
-          background: C.orange,
-          border: "none",
-          borderRadius: 2,
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "0.68rem",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: C.navy3,
-          fontWeight: 600,
-          cursor: "pointer",
-          transition: "opacity 0.2s",
+          justifyContent: "center",
+          gap: "0.75rem",
+          flexWrap: "wrap",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
       >
-        <FileDown size={14} />
-        Download Pass
-      </button>
+        <button
+          onClick={handleDownloadImage}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.65rem 1.75rem",
+            background: C.orange,
+            border: "none",
+            borderRadius: 2,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.68rem",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: C.navy3,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "opacity 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+        >
+          <FileDown size={14} />
+          Download Image
+        </button>
 
-      <IDCard ref={pdfRef} user={user} qrImage={qrImage} />
+        <button
+          onClick={handlePrintPass}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.65rem 1.75rem",
+            background: "transparent",
+            border: `1px solid ${C.orange}`,
+            borderRadius: 2,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.68rem",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: C.orange,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "opacity 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+        >
+          <Printer size={14} />
+          Print Pass
+        </button>
+      </div>
+
+      <div className="pass-print-area">
+        <IDCard ref={cardRef} user={user} qrImage={qrImage} />
+      </div>
     </div>
   );
 }

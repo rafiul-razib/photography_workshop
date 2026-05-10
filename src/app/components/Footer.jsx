@@ -121,35 +121,52 @@ const styles = `
     }
   }
 
-  /* nav links */
-  .pw-footer-nav {
+  /* admin logo link */
+  .pw-footer-admin-slot {
     display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
+    width: 100%;
+    justify-content: center;
   }
-  .pw-footer-nav-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--amber);
-    margin-bottom: 0.2rem;
+  @media(min-width: 640px) {
+    .pw-footer-admin-slot {
+      width: auto;
+      align-self: stretch;
+      align-items: center;
+      justify-content: flex-end;
+    }
   }
-  .pw-footer-nav a {
-    font-size: 0.8rem;
-    color: var(--mist);
-    text-decoration: none;
-    transition: color 0.2s;
-    display: flex;
+  .pw-footer-admin-link {
+    display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--ash);
+    border-radius: 50%;
+    background: var(--smoke);
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
   }
-  .pw-footer-nav a::before {
-    content: '—';
-    font-size: 0.55rem;
-    color: var(--amber);
-    opacity: 0.6;
+  .pw-footer-admin-link::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border: 1px solid rgba(232,160,48,0.35);
+    border-radius: 50%;
   }
-  .pw-footer-nav a:hover { color: var(--paper); }
+  .pw-footer-admin-link:hover {
+    border-color: var(--amber);
+    transform: translateY(-2px);
+  }
+  .pw-footer-admin-logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+  }
 
   /* social icons */
   .pw-footer-socials {
@@ -274,12 +291,22 @@ const Footer = () => {
 
           <div className="pw-footer-sep" />
 
-          {/* ── Quick Links ── */}
-          {/* <nav className="pw-footer-nav">
-            <p className="pw-footer-nav-label">Quick Links</p>
-            <Link href="/dashboard/allUsers">All Participants</Link>
-            <Link href="/paymentConfirmation">Payment</Link>
-          </nav> */}
+          {/* ── Admin Login Logo ── */}
+          <div className="pw-footer-admin-slot">
+            <Link
+              href="/admin"
+              className="pw-footer-admin-link"
+              aria-label="Go to admin login"
+              title="Admin Login"
+            >
+              <img
+                src="/favicon.ico"
+                alt=""
+                aria-hidden="true"
+                className="pw-footer-admin-logo"
+              />
+            </Link>
+          </div>
 
           <div className="pw-footer-sep" />
 

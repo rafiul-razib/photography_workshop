@@ -624,7 +624,7 @@ export default function ProfileCardPage() {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `https://reunion-cpscm-server.vercel.app/verifyUser/${tran_id}`,
+          `https://photography-workshop-server.vercel.app/verifyUser/${tran_id}`,
         );
         setUser(res.data);
       } catch (err) {
