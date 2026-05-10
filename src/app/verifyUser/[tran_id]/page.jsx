@@ -341,7 +341,7 @@ const IDCard = forwardRef(function IDCard({ user }, ref) {
               color: C.navy3,
             }}
           >
-            FOCUSCRTAFT
+            FOCUSCRAFT
           </div>
           <div
             style={{

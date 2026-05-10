@@ -458,7 +458,7 @@ export default function DashboardLayout({ children }) {
               </div>
               <div>
                 <div className="db-logo-name">
-                  FOCUS<b>CRTAFT</b>
+                  FOCUS<b>CRAFT</b>
                 </div>
                 <div className="db-logo-sub">Workshop Dashboard</div>
               </div>
@@ -514,7 +514,7 @@ export default function DashboardLayout({ children }) {
               <Link href="/" className="db-mob-brand">
                 <ApertureSVG size={22} />
                 <span>
-                  FOCUS<b style={{ color: C.orange }}>CRTAFT</b>
+                  FOCUS<b style={{ color: C.orange }}>CRAFT</b>
                 </span>
               </Link>
               <button

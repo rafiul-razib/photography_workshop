@@ -244,6 +244,7 @@ const styles = `
     border-radius:2px; padding:0.18rem 0.55rem;
     background:rgba(240,122,16,0.07);
   }
+  .au-print-interest { display:none; }
 
   /* states */
   .au-state-box {
@@ -322,8 +323,7 @@ const styles = `
     .au-refresh-btn,
     .au-print-btn,
     .au-table-head,
-    .au-avatar,
-    .au-badge-interest {
+    .au-avatar {
       display: none !important;
     }
 
@@ -429,6 +429,56 @@ const styles = `
       vertical-align: top !important;
     }
 
+    .au-interest-col {
+      display: table-cell !important;
+      visibility: visible !important;
+      width: 14% !important;
+      min-width: 70px !important;
+      color: #000 !important;
+    }
+
+    .au-screen-interest {
+      display: none !important;
+    }
+
+    .au-print-interest {
+      display: inline !important;
+      visibility: visible !important;
+      color: #000 !important;
+      background: transparent !important;
+      border: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      font-family: Arial, sans-serif !important;
+      font-size: 10px !important;
+      font-weight: 400 !important;
+      line-height: 1.3 !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .au-interest-col[data-print-interest] > * {
+      display: none !important;
+    }
+
+    .au-interest-col[data-print-interest]::after {
+      content: attr(data-print-interest) !important;
+      display: inline !important;
+      visibility: visible !important;
+      color: #000 !important;
+      background: transparent !important;
+      font-family: Arial, sans-serif !important;
+      font-size: 10px !important;
+      font-weight: 400 !important;
+      line-height: 1.3 !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
     .au-name-cell {
       display: block !important;
     }
@@ -441,12 +491,17 @@ const styles = `
 
     .au-badge-paid,
     .au-badge-pending {
+      display: inline !important;
+      visibility: visible !important;
       border: 0 !important;
       background: transparent !important;
       color: #000 !important;
       padding: 0 !important;
       letter-spacing: 0 !important;
       text-transform: none !important;
+      font-size: 10px !important;
+      font-weight: 400 !important;
+      line-height: 1.3 !important;
     }
   }
 `;
@@ -479,6 +534,13 @@ function StatCard({
     </motion.div>
   );
 }
+
+const getParticipantInterest = (user) =>
+  user?.interest ||
+  user?.areaOfInterest ||
+  user?.interestedIn ||
+  user?.workshopInterest ||
+  "";
 
 export default function AllParticipants() {
   const [allUsers, setAllUsers] = useState([]);
@@ -712,7 +774,7 @@ export default function AllParticipants() {
                         Mobile
                       </span>
                     </th>
-                    <th>
+                    <th className="au-interest-col">
                       <span
                         style={{
                           display: "inline-flex",
@@ -728,16 +790,19 @@ export default function AllParticipants() {
                   </tr>
                 </thead>
                 <tbody>
-                  {allUsers.map((user, idx) => (
-                    <motion.tr
-                      key={user._id || user.email}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: Math.min(idx * 0.03, 0.6),
-                        duration: 0.25,
-                      }}
-                    >
+                  {allUsers.map((user, idx) => {
+                    const participantInterest = getParticipantInterest(user);
+
+                    return (
+                      <motion.tr
+                        key={user._id || user.email}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: Math.min(idx * 0.03, 0.6),
+                          duration: 0.25,
+                        }}
+                      >
                       {/* row number */}
                       <td>
                         <span className="au-row-num">{idx + 1}</span>
@@ -782,13 +847,29 @@ export default function AllParticipants() {
                       <td style={{ color: C.gray }}>{user.phone || "—"}</td>
 
                       {/* interest */}
-                      <td>
-                        {user.interest ? (
-                          <span className="au-badge-interest">
-                            {user.interest}
-                          </span>
+                      <td
+                        className="au-interest-col"
+                        data-print-interest={participantInterest || "—"}
+                      >
+                        {participantInterest ? (
+                          <>
+                            <span className="au-badge-interest au-screen-interest">
+                              {participantInterest}
+                            </span>
+                            <span className="au-print-interest">
+                              {participantInterest}
+                            </span>
+                          </>
                         ) : (
-                          <span style={{ color: C.mist }}>—</span>
+                          <>
+                            <span
+                              className="au-screen-interest"
+                              style={{ color: C.mist }}
+                            >
+                              —
+                            </span>
+                            <span className="au-print-interest">—</span>
+                          </>
                         )}
                       </td>
 
@@ -801,7 +882,8 @@ export default function AllParticipants() {
                         )}
                       </td>
                     </motion.tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </motion.div>
